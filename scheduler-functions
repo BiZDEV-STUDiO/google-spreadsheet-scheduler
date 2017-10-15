@@ -1,0 +1,601 @@
+//I still need to automate the following: 
+// Find sister assigned to brother. If not visita, reschedule, if visita, check if they are family.  If not, reschedule
+// Find student assinged two talks in the same week or consecutive weeks. Reschedule
+// Generate talk slips automatically 3 weeks before the meeting week date.  Email slips to student and brother to print and hand out
+// email council points to chairman one week before the meeting
+// remind chairman to fill in counsel points 1 day after meeting, and again 3 days after
+var startRowRange = SpreadsheetApp.getActive().getSheetByName("CLMSchedule").getRange("AE1");
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  // Or DocumentApp or FormApp.
+  ui.createMenu('SCHEDULER')
+      .addItem('Set Schedule', 'setNextStudentBtn')
+      .addItem('Back Up Schedule', 'makeBackUpOfCLMSchedule')
+//      .addItem('Set Listing Status', 'setListingStatusBtn')
+//      .addSeparator()
+//      .addSubMenu(ui.createMenu('Sub-menu')
+//          .addItem('Second item', 'menuItem2'))
+      .addToUi();
+}
+function setAEColLastValue() {
+ SpreadsheetApp.getActive().getSheetByName("CLMSchedule").getRange("AE1").setValue(rowNumLastValue("CLMSchedule","AE"));
+  var startRowValue = startRowRange.getValue();
+  Logger.log(startRowValue);
+}
+
+function setNextStudentBtn(){
+  scheduleNextBibleReaders();
+  scheduleNextVisitaStudents();
+  scheduleNextVisitaMorador();
+  scheduleNextRevisitaStudent();
+  scheduleNextRevisitaMorador();
+  scheduleNextEstudoBiblicoStudent();
+  scheduleNextEstudoBiblicoMorador();
+  makeBackUpOfCLMSchedule();
+}
+
+function scheduleNextBibleReaders() {
+ var scheduleSheet = SpreadsheetApp.getActive().getSheetByName("CLMSchedule");  
+// var today = new Date() ;
+ var today = scheduleSheet.getRange("T1").getValue();
+ var counselPointSheet = SpreadsheetApp.getActive().getSheetByName("Students"); 
+ var rows = scheduleSheet.getDataRange();
+ var data = scheduleSheet.getDataRange().getValues();
+ var numRows = rows.getNumRows();
+ var values = rows.getValues();
+ var array = [];
+ var array2 = [];
+ var lastRow = scheduleSheet.getLastRow();
+ var lastRowA = rowNumLastValue("Students","A")-1;
+ var rows2 = counselPointSheet.getDataRange();
+ var data2 = counselPointSheet.getDataRange().getValues();
+ var numRows2 = rows2.getNumRows();
+ var values2 = rows2.getValues(); 
+ var lastRow2 = counselPointSheet.getLastRow();
+ counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","C"));
+  counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","C"));
+  counselPointSheet.getRange("L1").setValue(rowNumLastValue("CLMSchedule","T"));
+  var startRowValue = counselPointSheet.getRange("J1").getValue();
+  var startRowValue2 = counselPointSheet.getRange("K1").getValue();
+  var startRowValue3 = counselPointSheet.getRange("L1").getValue();
+  for (var i = 0; i < values2.length; i++) {
+    var row = "";
+    var rowNumber = "";
+    for (var j = 0; j < values2[i].length; j++) {     
+      if (values2[i][0] == startRowValue2 ) {
+        row = values2[i][j+1];
+        startRowValue2 = i+2;
+//        Logger.log(startRowValue2);
+//        Logger.log(lastRow2);
+//        Logger.log(lastRowC);
+      }
+    }
+  }
+  var nextStudentValue = counselPointSheet.getRange(startRowValue2+1, 1).getValue();
+
+  
+  //This is start row number for scheduling next students
+  Logger.log(startRowValue);
+  //This is the row position of student rotation to start at
+  Logger.log(startRowValue2);
+  //last row to copy to for schedule
+  Logger.log(startRowValue3);
+  //This is the last row number in column a of students
+  Logger.log(lastRowA);
+  if (scheduleSheet.getRange(startRowValue3-1, 3).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != ""){
+      if (nextStudentValue == "") {
+       counselPointSheet.getRange(startRowValue2, 1, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 3,startRowValue3-startRowValue, 1), {contentsOnly:true});
+        counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","C"));
+        counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","C"));
+        var startRowValue = counselPointSheet.getRange("J1").getValue();
+         startRowValue2 = 3
+        
+  }
+  }
+  if (scheduleSheet.getRange(startRowValue3-1, 3).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+          counselPointSheet.getRange(startRowValue2, 1, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 3,startRowValue3-startRowValue, 1), {contentsOnly:true});
+  }
+    if (scheduleSheet.getRange(startRowValue3-1, 3).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+  
+    Logger.log("Run Script Again");
+    scheduleNextVisitaMorador();
+  }else{Logger.log("Don't Run Script Again");}
+}
+
+function scheduleNextVisitaStudents() {
+ var scheduleSheet = SpreadsheetApp.getActive().getSheetByName("CLMSchedule");  
+// var today = new Date() ;
+ var today = scheduleSheet.getRange("T1").getValue();
+ var counselPointSheet = SpreadsheetApp.getActive().getSheetByName("Students"); 
+ var rows = scheduleSheet.getDataRange();
+ var data = scheduleSheet.getDataRange().getValues();
+ var numRows = rows.getNumRows();
+ var values = rows.getValues();
+ var array = [];
+ var array2 = [];
+ var lastRow = scheduleSheet.getLastRow();
+ var lastRowA = rowNumLastValue("Students","A")-1;
+ var rows2 = counselPointSheet.getDataRange();
+ var data2 = counselPointSheet.getDataRange().getValues();
+ var numRows2 = rows2.getNumRows();
+ var values2 = rows2.getValues(); 
+ var lastRow2 = counselPointSheet.getLastRow();
+ counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","F"));
+  counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","F"));
+  counselPointSheet.getRange("L1").setValue(rowNumLastValue("CLMSchedule","T"));
+  var startRowValue = counselPointSheet.getRange("J1").getValue();
+  var startRowValue2 = counselPointSheet.getRange("K1").getValue();
+  var startRowValue3 = counselPointSheet.getRange("L1").getValue();
+  for (var i = 0; i < values2.length; i++) {
+    var row = "";
+    var rowNumber = "";
+    for (var j = 0; j < values2[i].length; j++) { 
+      Logger.log(startRowValue2);
+      if (values2[i][12] == startRowValue2 ) {
+        Logger.log("true");
+        Logger.log(values2[i][12]);
+        Logger.log(startRowValue2);
+        row = values2[i][j+1];
+        startRowValue2 = i+2;
+//        Logger.log(startRowValue2);
+//        Logger.log(lastRow2);
+//        Logger.log(lastRowC);
+      }
+    }
+  }
+  Logger.log(startRowValue2+1);
+  var nextStudentValue = counselPointSheet.getRange(startRowValue2+1, 13).getValue();
+//Logger.log(nextStudentValue);
+  
+  //This is start row number for scheduling next students
+  Logger.log(startRowValue);
+  //This is the row position of student rotation to start at
+  Logger.log(startRowValue2);
+  //last row to copy to for schedule
+  Logger.log(startRowValue3);
+  //This is the last row number in column a of students
+  Logger.log(lastRowA);
+  if (scheduleSheet.getRange(startRowValue3-1, 6).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != ""){
+      if (nextStudentValue == "") {
+       counselPointSheet.getRange(startRowValue2, 13, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 6,startRowValue3-startRowValue, 1), {contentsOnly:true});
+        counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","F"));
+        counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","F"));
+        var startRowValue = counselPointSheet.getRange("J1").getValue();
+         startRowValue2 = 3
+        
+  }
+  }
+  if (scheduleSheet.getRange(startRowValue3-1, 6).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+          counselPointSheet.getRange(startRowValue2, 13, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 6,startRowValue3-startRowValue, 1), {contentsOnly:true});
+  }
+    if (scheduleSheet.getRange(startRowValue3-1, 6).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+  
+    Logger.log("Run Script Again");
+    scheduleNextVisitaMorador();
+  }else{Logger.log("Don't Run Script Again");}
+}
+
+function scheduleNextVisitaMorador() {
+ var scheduleSheet = SpreadsheetApp.getActive().getSheetByName("CLMSchedule");  
+// var today = new Date() ;
+ var today = scheduleSheet.getRange("T1").getValue();
+ var counselPointSheet = SpreadsheetApp.getActive().getSheetByName("Students"); 
+ var rows = scheduleSheet.getDataRange();
+ var data = scheduleSheet.getDataRange().getValues();
+ var numRows = rows.getNumRows();
+ var values = rows.getValues();
+ var array = [];
+ var array2 = [];
+ var lastRow = scheduleSheet.getLastRow();
+ var lastRowA = rowNumLastValue("Students","A")-1;
+ var rows2 = counselPointSheet.getDataRange();
+ var data2 = counselPointSheet.getDataRange().getValues();
+ var numRows2 = rows2.getNumRows();
+ var values2 = rows2.getValues(); 
+ var lastRow2 = counselPointSheet.getLastRow();
+ counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","I"));
+  counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","I"));
+  counselPointSheet.getRange("L1").setValue(rowNumLastValue("CLMSchedule","T"));
+  var startRowValue = counselPointSheet.getRange("J1").getValue();
+  var startRowValue2 = counselPointSheet.getRange("K1").getValue();
+  var startRowValue3 = counselPointSheet.getRange("L1").getValue();
+  for (var i = 0; i < values2.length; i++) {
+    var row = "";
+    var rowNumber = "";
+    for (var j = 0; j < values2[i].length; j++) {     
+      if (values2[i][14] == startRowValue2 ) {
+        row = values2[i][j+1];
+        startRowValue2 = i+2;
+//        Logger.log(startRowValue2);
+//        Logger.log(lastRow2);
+//        Logger.log(lastRowC);
+      }
+     }
+  }
+  var nextStudentValue = counselPointSheet.getRange(startRowValue2+1, 15).getValue();
+
+  
+  //This is start row number for scheduling next students
+  Logger.log(startRowValue);
+  //This is the row position of student rotation to start at
+  Logger.log(startRowValue2);
+  //last row to copy to for schedule
+  Logger.log(startRowValue3);
+  //This is the last row number in column a of students
+  Logger.log(lastRowA);
+  if (scheduleSheet.getRange(startRowValue3-1, 9).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != ""){
+      if (nextStudentValue == "") {
+       counselPointSheet.getRange(startRowValue2, 15, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 9,startRowValue3-startRowValue, 1), {contentsOnly:true});
+        counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","I"));
+        counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","I"));
+        var startRowValue = counselPointSheet.getRange("J1").getValue();
+         startRowValue2 = 3
+        
+  }
+  }
+  if (scheduleSheet.getRange(startRowValue3-1, 9).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+          counselPointSheet.getRange(startRowValue2, 15, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 9,startRowValue3-startRowValue, 1), {contentsOnly:true});
+  }
+    if (scheduleSheet.getRange(startRowValue3-1, 9).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+  
+    Logger.log("Run Script Again");
+    scheduleNextVisitaMorador();
+  }else{Logger.log("Don't Run Script Again");}
+}
+
+function scheduleNextRevisitaStudent() {
+ var scheduleSheet = SpreadsheetApp.getActive().getSheetByName("CLMSchedule");  
+// var today = new Date() ;
+ var today = scheduleSheet.getRange("T1").getValue();
+ var counselPointSheet = SpreadsheetApp.getActive().getSheetByName("Students"); 
+ var rows = scheduleSheet.getDataRange();
+ var data = scheduleSheet.getDataRange().getValues();
+ var numRows = rows.getNumRows();
+ var values = rows.getValues();
+ var array = [];
+ var array2 = [];
+ var lastRow = scheduleSheet.getLastRow();
+ var lastRowA = rowNumLastValue("Students","A")-1;
+ var rows2 = counselPointSheet.getDataRange();
+ var data2 = counselPointSheet.getDataRange().getValues();
+ var numRows2 = rows2.getNumRows();
+ var values2 = rows2.getValues(); 
+ var lastRow2 = counselPointSheet.getLastRow();
+ counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","J"));
+  counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","J"));
+  counselPointSheet.getRange("L1").setValue(rowNumLastValue("CLMSchedule","T"));
+  var startRowValue = counselPointSheet.getRange("J1").getValue();
+  var startRowValue2 = counselPointSheet.getRange("K1").getValue();
+  var startRowValue3 = counselPointSheet.getRange("L1").getValue();
+  for (var i = 0; i < values2.length; i++) {
+    var row = "";
+    var rowNumber = "";
+    for (var j = 0; j < values2[i].length; j++) {     
+      if (values2[i][16] == startRowValue2 ) {
+        row = values2[i][j+1];
+        startRowValue2 = i+2;
+//        Logger.log(startRowValue2);
+//        Logger.log(lastRow2);
+//        Logger.log(lastRowC);
+      }
+     }
+  }
+  var nextStudentValue = counselPointSheet.getRange(startRowValue2+1, 17).getValue();
+
+  
+  //This is start row number for scheduling next students
+  Logger.log(startRowValue);
+  //This is the row position of student rotation to start at
+  Logger.log(startRowValue2);
+  //last row to copy to for schedule
+  Logger.log(startRowValue3);
+  //This is the last row number in column a of students
+  Logger.log(lastRowA);
+  if (scheduleSheet.getRange(startRowValue3-1, 10).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != ""){
+      if (nextStudentValue == "") {
+       counselPointSheet.getRange(startRowValue2, 17, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 10,startRowValue3-startRowValue, 1), {contentsOnly:true});
+        counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","J"));
+        counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","J"));
+        var startRowValue = counselPointSheet.getRange("J1").getValue();
+         startRowValue2 = 3
+        
+  }
+  }
+  if (scheduleSheet.getRange(startRowValue3-1, 10).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+          counselPointSheet.getRange(startRowValue2, 17, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 10,startRowValue3-startRowValue, 1), {contentsOnly:true});
+  }
+    if (scheduleSheet.getRange(startRowValue3-1, 10).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+  
+    Logger.log("Run Script Again");
+    scheduleNextRevisitaStudent();
+  }else{Logger.log("Don't Run Script Again");}
+}
+
+function scheduleNextRevisitaMorador() {
+ var scheduleSheet = SpreadsheetApp.getActive().getSheetByName("CLMSchedule");  
+// var today = new Date() ;
+ var today = scheduleSheet.getRange("T1").getValue();
+ var counselPointSheet = SpreadsheetApp.getActive().getSheetByName("Students"); 
+ var rows = scheduleSheet.getDataRange();
+ var data = scheduleSheet.getDataRange().getValues();
+ var numRows = rows.getNumRows();
+ var values = rows.getValues();
+ var array = [];
+ var array2 = [];
+ var lastRow = scheduleSheet.getLastRow();
+ var lastRowA = rowNumLastValue("Students","A")-1;
+ var rows2 = counselPointSheet.getDataRange();
+ var data2 = counselPointSheet.getDataRange().getValues();
+ var numRows2 = rows2.getNumRows();
+ var values2 = rows2.getValues(); 
+ var lastRow2 = counselPointSheet.getLastRow();
+ counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","M"));
+  counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","M"));
+  counselPointSheet.getRange("L1").setValue(rowNumLastValue("CLMSchedule","T"));
+  var startRowValue = counselPointSheet.getRange("J1").getValue();
+  var startRowValue2 = counselPointSheet.getRange("K1").getValue();
+  Logger.log(startRowValue2);
+  var startRowValue3 = counselPointSheet.getRange("L1").getValue();
+  for (var i = 0; i < values2.length; i++) {
+    var row = "";
+    var rowNumber = "";
+    for (var j = 0; j < values2[i].length; j++) {     
+      if (values2[i][14] == startRowValue2 ) {
+        row = values2[i][j+1];
+        startRowValue2 = i+2;
+//        Logger.log(startRowValue2);
+//        Logger.log(lastRow2);
+//        Logger.log(lastRowC);
+        Logger.log("true1")
+        Logger.log(i+2);
+//        Logger.log(startRowValue2)
+      }
+     }
+  }
+
+  var nextStudentValue = counselPointSheet.getRange(startRowValue2+1, 15).getValue();
+Logger.log(nextStudentValue);
+  
+  //This is start row number for scheduling next students
+//  Logger.log(startRowValue);
+  //This is the row position of student rotation to start at
+//  Logger.log(startRowValue2);
+  //last row to copy to for schedule
+  Logger.log(startRowValue3);
+  //This is the last row number in column a of students
+//  Logger.log(lastRowA);
+  if (scheduleSheet.getRange(startRowValue3-1, 13).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != ""){
+    Logger.log("true2");
+      if (nextStudentValue == "") {
+        Logger.log("true3");
+       counselPointSheet.getRange(startRowValue2, 15, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 13,startRowValue3-startRowValue, 1), {contentsOnly:true});
+        counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","M"));
+        counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","M"));
+        var startRowValue = counselPointSheet.getRange("J1").getValue();
+         startRowValue2 = 3
+        
+  }
+  }
+  Logger.log(startRowValue2);
+  if (scheduleSheet.getRange(startRowValue3-1, 13).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+   Logger.log("true4");
+//    Logger.log(startRowValue2);
+        Logger.log(startRowValue3);
+        Logger.log(startRowValue);
+//    Logger.log(startRowValue3-startRowValue);
+          counselPointSheet.getRange(startRowValue2, 15, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 13,startRowValue3-startRowValue, 1), {contentsOnly:true});
+  }
+    if (scheduleSheet.getRange(startRowValue3-1, 13).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+  
+    Logger.log("Run Script Again");
+    scheduleNextRevisitaMorador();
+  }else{Logger.log("Don't Run Script Again");}
+}
+
+function scheduleNextEstudoBiblicoStudent() {
+ var scheduleSheet = SpreadsheetApp.getActive().getSheetByName("CLMSchedule");  
+// var today = new Date() ;
+ var today = scheduleSheet.getRange("T1").getValue();
+ var counselPointSheet = SpreadsheetApp.getActive().getSheetByName("Students"); 
+ var rows = scheduleSheet.getDataRange();
+ var data = scheduleSheet.getDataRange().getValues();
+ var numRows = rows.getNumRows();
+ var values = rows.getValues();
+ var array = [];
+ var array2 = [];
+ var lastRow = scheduleSheet.getLastRow();
+ var lastRowA = rowNumLastValue("Students","A")-1;
+ var rows2 = counselPointSheet.getDataRange();
+ var data2 = counselPointSheet.getDataRange().getValues();
+ var numRows2 = rows2.getNumRows();
+ var values2 = rows2.getValues(); 
+ var lastRow2 = counselPointSheet.getLastRow();
+ counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","N"));
+  counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","N"));
+  counselPointSheet.getRange("L1").setValue(rowNumLastValue("CLMSchedule","T"));
+  var startRowValue = counselPointSheet.getRange("J1").getValue();
+  var startRowValue2 = counselPointSheet.getRange("K1").getValue();
+  var startRowValue3 = counselPointSheet.getRange("L1").getValue();
+  for (var i = 0; i < values2.length; i++) {
+    var row = "";
+    var rowNumber = "";
+    for (var j = 0; j < values2[i].length; j++) {     
+      if (values2[i][18] == startRowValue2 ) {
+        row = values2[i][j+1];
+        startRowValue2 = i+2;
+//        Logger.log(startRowValue2);
+//        Logger.log(lastRow2);
+//        Logger.log(lastRowC);
+      }
+     }
+  }
+  var nextStudentValue = counselPointSheet.getRange(startRowValue2+1, 19).getValue();
+
+  
+  //This is start row number for scheduling next students
+  Logger.log(startRowValue);
+  //This is the row position of student rotation to start at
+  Logger.log(startRowValue2);
+  //last row to copy to for schedule
+  Logger.log(startRowValue3);
+  //This is the last row number in column a of students
+  Logger.log(lastRowA);
+  if (scheduleSheet.getRange(startRowValue3-1, 14).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != ""){
+      if (nextStudentValue == "") {
+       counselPointSheet.getRange(startRowValue2, 19, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 14,startRowValue3-startRowValue, 1), {contentsOnly:true});
+        counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","N"));
+        counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","N"));
+        var startRowValue = counselPointSheet.getRange("J1").getValue();
+         startRowValue2 = 3
+        
+  }
+  }
+  if (scheduleSheet.getRange(startRowValue3-1, 14).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+          counselPointSheet.getRange(startRowValue2, 19, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 14,startRowValue3-startRowValue, 1), {contentsOnly:true});
+  }
+    if (scheduleSheet.getRange(startRowValue3-1, 14).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+  
+    Logger.log("Run Script Again");
+    scheduleNextEstudoBiblicoStudent();
+  }else{Logger.log("Don't Run Script Again");}
+}
+
+function lastValue(sheet,column) {
+  var lastRow = SpreadsheetApp.getActive().getSheetByName(sheet).getMaxRows();
+  var values = SpreadsheetApp.getActive().getSheetByName(sheet).getRange(column + "1:" + column + lastRow).getValues();
+
+  for (; values[lastRow - 1] == "" && lastRow > 0; lastRow--) {}
+  return values[lastRow - 1];
+  
+}
+
+function scheduleNextEstudoBiblicoMorador() {
+ var scheduleSheet = SpreadsheetApp.getActive().getSheetByName("CLMSchedule");  
+// var today = new Date() ;
+ var today = scheduleSheet.getRange("T1").getValue();
+ var counselPointSheet = SpreadsheetApp.getActive().getSheetByName("Students"); 
+ var rows = scheduleSheet.getDataRange();
+ var data = scheduleSheet.getDataRange().getValues();
+ var numRows = rows.getNumRows();
+ var values = rows.getValues();
+ var array = [];
+ var array2 = [];
+ var lastRow = scheduleSheet.getLastRow();
+ var lastRowA = rowNumLastValue("Students","A")-1;
+ var rows2 = counselPointSheet.getDataRange();
+ var data2 = counselPointSheet.getDataRange().getValues();
+ var numRows2 = rows2.getNumRows();
+ var values2 = rows2.getValues(); 
+ var lastRow2 = counselPointSheet.getLastRow();
+ counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","Q"));
+  counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","Q"));
+  counselPointSheet.getRange("L1").setValue(rowNumLastValue("CLMSchedule","T"));
+  var startRowValue = counselPointSheet.getRange("J1").getValue();
+  var startRowValue2 = counselPointSheet.getRange("K1").getValue();
+  var startRowValue3 = counselPointSheet.getRange("L1").getValue();
+  for (var i = 0; i < values2.length; i++) {
+    var row = "";
+    var rowNumber = "";
+    for (var j = 0; j < values2[i].length; j++) {     
+      if (values2[i][14] == startRowValue2 ) {
+        row = values2[i][j+1];
+        startRowValue2 = i+2;
+//        Logger.log(startRowValue2);
+//        Logger.log(lastRow2);
+//        Logger.log(lastRowC);
+      }
+     }
+  }
+  var nextStudentValue = counselPointSheet.getRange(startRowValue2+1, 15).getValue();
+
+  
+  //This is start row number for scheduling next students
+  Logger.log(startRowValue);
+  //This is the row position of student rotation to start at
+  Logger.log(startRowValue2);
+  //last row to copy to for schedule
+  Logger.log(startRowValue3);
+  //This is the last row number in column a of students
+  Logger.log(lastRowA);
+  if (scheduleSheet.getRange(startRowValue3-1, 17).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != ""){
+      if (nextStudentValue == "") {
+       counselPointSheet.getRange(startRowValue2, 15, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 17,startRowValue3-startRowValue, 1), {contentsOnly:true});
+        counselPointSheet.getRange("J1").setValue(rowNumLastValue("CLMSchedule","Q"));
+        counselPointSheet.getRange("K1").setValue(lastValue("CLMSchedule","Q"));
+        var startRowValue = counselPointSheet.getRange("J1").getValue();
+         startRowValue2 = 3
+        
+  }
+  }
+  if (scheduleSheet.getRange(startRowValue3-1, 17).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+          counselPointSheet.getRange(startRowValue2, 15, startRowValue3-startRowValue, 1).copyTo(scheduleSheet.getRange(startRowValue, 17,startRowValue3-startRowValue, 1), {contentsOnly:true});
+  }
+    if (scheduleSheet.getRange(startRowValue3-1, 17).getValue() == "" && scheduleSheet.getRange(startRowValue3-1, 20).getValue() != "") {
+  
+    Logger.log("Run Script Again");
+    scheduleNextEstudoBiblicoMorador();
+  }else{Logger.log("Don't Run Script Again");}
+}
+
+function rowNumLastValue(sheet,column) {
+  var lastRow = SpreadsheetApp.getActive().getSheetByName(sheet).getMaxRows();
+  var values = SpreadsheetApp.getActive().getSheetByName(sheet).getRange(column + "1:" + column + lastRow).getValues();
+
+  for (; values[lastRow - 1] == "" && lastRow > 0; lastRow--) {}
+  return lastRow + 1;
+  
+}
+
+function makeBackUpOfCLMSchedule() {
+var sourceSheet1 = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("CLMSchedule");
+var numRowsSource1 = sourceSheet1.getLastRow();
+var numColsSource1 = sourceSheet1.getLastColumn();  
+var destSheet1 = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Copy of CLMSchedule");
+var numRowsDest1 = destSheet1.getLastRow();
+var numColsDest1 = destSheet1.getLastColumn();
+var sourceRange1 = sourceSheet1.getRange(1, 1, numRowsSource1, numColsSource1);
+//var destRange1 = destSheet1.getRange(1, 1, numRowsDest1, numColsDest1);
+  destSheet1.clear();
+  var destRange1 = destSheet1.getRange(1, 1, numRowsSource1, numColsSource1);
+  sourceRange1.copyTo((destRange1),{contentsOnly:true});
+  setSchedulingCompleteStatus();
+}
+
+function setSchedulingCompleteStatus() {
+  var sheet = SpreadsheetApp.getActive().getSheetByName("CLMSchedule");
+//  var ss = SpreadsheetApp.getActive().getSheetByName("Variables");
+  var rows = sheet.getDataRange();
+  var data = sheet.getDataRange().getValues();
+  var numRows = rows.getNumRows();
+  var values = rows.getValues();
+  var array = [];
+  var array2 = [];
+  var lastRow = sheet.getLastRow();
+  sheet.getRange(2,31,numRows-1,1).clear();
+//  var listingDataCol = sheet.getRange(26, column, numRows, numColumns)
+//  data.forEach(function(row){
+  for (var i=0; i < data.length; i++) {
+//    var row = values[i];
+
+    if (data [i][0] != "WEEK STARTING MONDAY" && data [i][3] != "" && data [i][4] != "" && data [i][6] != ""  && data [i][7] != ""  && data [i][10] != ""  && data [i][11] != "") {
+      if(data [i][0] != "WEEK STARTING MONDAY" && data [i][14] != ""  && data [i][15] != ""  || data [i][17] != ""  && data [i][18] != ""){        
+      array.push("Yes")
+      }
+    }
+          if(data [i][0] != "WEEK STARTING MONDAY" && data [i][3] != "" && data [i][4] != "" && data [i][5] == "CONSIDERAÇÃO - VIDEOS"){array2.push("Yes")}
+
+//    Logger.clear(); 
+    Logger.log(array);
+//    Logger.log(array2);
+    if (array != "") {
+//      sheet.getRange(2,31,numRows-1,1).clear();
+      sheet.getRange(i+1,31).setValue(array);
+    }
+    array=[];
+    if (array2 != "") {
+//      sheet.getRange(i+1,31).clear();
+      sheet.getRange(i+1,31).setValue(array2);
+    }
+    array2=[];
+    }
+}
